@@ -41,9 +41,7 @@ class UpdateDeleteCarView(RetrieveUpdateDestroyAPIView):
         serializer = MovieSerializer(movie, data=request.data)
 
         if serializer.is_valid():
-            return JsonResponse({
-                'message': 'Search successful!'
-            }, status=StatusCode.status_ok)
+            return JsonResponse(serializer.data, status=StatusCode.status_ok)
         
         return JsonResponse({
                 'message': 'Search unsuccessful!'
