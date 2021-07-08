@@ -4,4 +4,4 @@ from django.db import models
 class Movie(models.Model):
     name = models.CharField(max_length=250)
     releasedate = models.DateField()
-    description = models.CharField()
+    description = models.TextField()
