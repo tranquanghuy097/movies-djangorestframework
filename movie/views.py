@@ -3,7 +3,6 @@ from django.shortcuts import get_object_or_404
 
 from rest_framework import status
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
-from rest_framework.parsers import JSONParser
 
 from .models import Movie
 from .serializer import MovieSerializer
