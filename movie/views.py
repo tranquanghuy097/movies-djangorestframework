@@ -32,7 +32,7 @@ class ListCreateMovie(ListCreateAPIView):
             'message': 'Create unsuccessful!'
         }, status=StatusCode.status_not_ok)
 
-class UpdateDeleteCarView(RetrieveUpdateDestroyAPIView):
+class RetrieveUpdateDeleteMovieView(RetrieveUpdateDestroyAPIView):
     model = Movie
     serializer_class = MovieSerializer
 
