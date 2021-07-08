@@ -5,76 +5,67 @@ import json
 from .models import Movie
 
 class MovieTests(APITestCase):
-    datalist = [{'name': 'a', 'releasedate' : '2021/02/04', 'description' : 'a'},
-    {'name': 'b', 'releasedate' : '2021/03/04', 'description' : 'a'},
-    {'name': 'c', 'releasedate' : '2022/02/04', 'description' : 'a'},
-    {'name': 'd', 'releasedate' : '1997/02/04', 'description' : 'a'}]
+    datalist = [{'name': 'Batman', 'releasedate' : '2021-02-04', 'description' : 'a'},
+    {'name': 'b', 'releasedate' : '2021-03-04', 'description' : 'a'},
+    {'name': 'c', 'releasedate' : '2022-02-04', 'description' : 'a'},
+    {'name': 'd', 'releasedate' : '1997-02-04', 'description' : 'a'}]
 
     response_ok = status.HTTP_200_OK
+
+    def setUp(self):
+        for element in self.datalist:
+            Movie.objects.create(**element)
 
     def test_get_movie(self):
         """
         Ensure we get all movie objects.
         """
-        for element in self.datalist:
-            Movie.objects.create(element)
-
-        url = reverse('movies')
+        url = reverse('movies-list')
         response = self.client.get(url)
         
         self.assertEqual(response.status_code, self.response_ok)
-        data_unloaded = json.loads(response.json)
-        self.assertEqual(data_unloaded, self.datalist)
+        self.assertEqual(response.json()[0]['name'], self.datalist[0]['name'])
 
     def test_get_movie_by_id(self):
         """
         Ensure we get movie by id.
         """
-        for element in self.datalist:
-            Movie.objects.create(element)
-
-        url = reverse('movies', kwargs={'pk': 1})
+        url = reverse('movie-id', kwargs={'pk':1})
         response = self.client.get(url)
-        
-        self.assertEqual(response.status_code, self.response_ok)
-        data_unloaded = json.loads(response.json)
-        self.assertEqual(data_unloaded, self.datalist[0])
+
+        self.assertEqual(response.json()['name'], self.datalist[0]['name'])
 
     def test_create_movie(self):
         """
         Ensure we can create a new movie object.
         """
-        index = 0
-        url = reverse('movies')
-        data = self.datalist[index]
+        url = reverse('movies-list')
+        data = {'name': 'Kamen Rider', 'releasedate': '2012-01-01', 'description': 'I am not ok'}
         response = self.client.post(url, data, format='json')
 
         self.assertEqual(response.status_code, self.response_ok)
-        self.assertEqual(Movie.objects.count(), 1)
-        self.assertEqual(Movie.objects.get().name, self.datalist[index]['name'])
+        self.assertEqual(Movie.objects.count(), len(self.datalist) + 1)
+        self.assertEqual(Movie.objects.get(pk=len(self.datalist) + 1).name, data['name'])
 
     def test_update_movie(self):
         """
         Ensure we can update movie object.
         """
-        index = 0
-        Movie.objects.create(self.datalist[index])
-        data = self.datalist[index]
+        data = {'name': 'Kamen Rider', 'releasedate': '2012-01-01', 'description': 'I am not ok'}
         data['name'] = 'abcdef'
-        url = reverse('movies', kwargs={'pk': 1})
+        url = reverse('movie-id', kwargs={'pk': 2})
         response = self.client.put(url, data, format='json')
         
         self.assertEqual(response.status_code, self.response_ok)
-        self.assertEqual(Movie.objects.get(1).name, data['name'])
+        self.assertEqual(Movie.objects.get(pk=2).name, data['name'])
+        self.assertEqual(Movie.objects.get(pk=2).releasedate.strftime("%Y-%m-%d"), data['releasedate'])
+        self.assertEqual(Movie.objects.get(pk=2).description, data['description'])
 
     def test_delete_movie(self):
         """
         Ensure we can delete movie object.
         """
-        url = reverse('movies')
-        data = {'name': 'DabApps', 'releasedate' : '2021/02/04', 'description' : 'a'}
-        response = self.client.post(url, data, format='json')
-        url = reverse('movies', kwargs={'pk': 1})
+        url = reverse('movie-id', kwargs={'pk': 3})
         response = self.client.delete(url)
         self.assertEqual(response.status_code, self.response_ok)
-        self.assertEqual(Movie.objects.count(), 0)
+        self.assertEqual(Movie.objects.count(), len(self.datalist) - 1)

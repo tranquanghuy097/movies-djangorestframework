@@ -19,6 +19,6 @@ from movie.views import ListCreateMovie, RetrieveUpdateDeleteMovieView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('movies', ListCreateMovie.as_view()),
-    path('movies/<int:pk>', RetrieveUpdateDeleteMovieView.as_view())
+    path('movies', ListCreateMovie.as_view(), name='movies-list'),
+    path('movies/<int:pk>', RetrieveUpdateDeleteMovieView.as_view(), name='movie-id')
 ]

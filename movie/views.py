@@ -1,8 +1,9 @@
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 
-from rest_framework import serializers, status
+from rest_framework import status
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
+from rest_framework.parsers import JSONParser
 
 from .models import Movie
 from .serializer import MovieSerializer
@@ -17,7 +18,7 @@ class ListCreateMovie(ListCreateAPIView):
     serializer_class = MovieSerializer
     
     def get_queryset(self):
-        return Movie.objects.all
+        return Movie.objects.all()
     
     def create(self, request, *args, **kwargs):
         serializer = MovieSerializer(data=request.data)
@@ -36,16 +37,9 @@ class RetrieveUpdateDeleteMovieView(RetrieveUpdateDestroyAPIView):
     model = Movie
     serializer_class = MovieSerializer
 
-    def get(self, request, *args, **kwargs):
-        movie = get_object_or_404(Movie, id=kwargs.get('pk'))
-        serializer = MovieSerializer(movie, data=request.data)
-
-        if serializer.is_valid():
-            return JsonResponse(serializer.data, status=StatusCode.status_ok)
-        
-        return JsonResponse({
-                'message': 'Search unsuccessful!'
-            }, status=StatusCode.status_not_ok)
+    def get_queryset(self):
+      queryset = Movie.objects.filter(pk=self.kwargs['pk'])
+      return queryset
 
     def put(self, request, *args, **kwargs):
         movie = get_object_or_404(Movie, id=kwargs.get('pk'))
